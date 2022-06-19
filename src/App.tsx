@@ -5,6 +5,7 @@ import './App.css';
 function App() {
 
   const [dogs, setDogs] = useState<string[] | null>(null);
+  const [position, setPosition] = useState(0);
 
   useEffect(() => {
     const fetchData = async (endpoint:string) => {
@@ -18,17 +19,37 @@ function App() {
   return (
     <div className="App">
       <div className='row'>
+
+      {
+        dogs ? 
+        dogs.map((dog, index) =>
+
         <motion.div 
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1, left: '-30vw' }}
-          transition={{ type:'spring', stiffness:75, damping:8, delay:0.5 }}
+          initial={{ 
+            opacity: 0,
+            scale: 0
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            left: `${index* 30 }vw`
+          }}
+          transition={{
+            type:'spring',
+            stiffness:75,
+            damping:8,
+            delay:0.5
+          }}
           className='container'>
-            {
-              dogs ? 
-              dogs.map((dog, index) => <img src={dog} key={index} alt='dog' />) 
-              : <p>Loading...</p>
-            }
-        </motion.div>
+
+          <img src={dog} key={index} alt='dog' />
+
+          </motion.div>
+
+          ) 
+          : <p>Loading...</p>
+          }
+
       </div>
     </div>
   );
