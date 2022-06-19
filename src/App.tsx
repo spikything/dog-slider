@@ -7,6 +7,9 @@ function App() {
 
   const [dogs, setDogs] = useState<string[] | null>(null);
   const [position, setPosition] = useState(2);
+  const ITEM_WIDTH = 60;
+  const ITEM_COUNT = 25;
+  const CAROUSEL_CENTRE_OFFSET = Math.round(ITEM_COUNT / 2);
 
   const swipeConfig = {
     delta: 10,
@@ -35,13 +38,20 @@ function App() {
     ...swipeConfig,
   });
 
+  const getCarouselVirtualIndex = (imageIndex:number, carouselPosition:number) => {
+    let virtualIndex = imageIndex - carouselPosition;
+    // while (virtualIndex < 0) virtualIndex += ITEM_COUNT;
+    // virtualIndex = virtualIndex % ITEM_COUNT;
+    return virtualIndex - CAROUSEL_CENTRE_OFFSET;
+  }
+
   useEffect(() => {
     const fetchData = async (endpoint:string) => {
       const result = await fetch(endpoint);
       const json = await result.json();
       setDogs(json.message);
     }
-    fetchData('https://dog.ceo/api/breeds/image/random/5');
+    fetchData('https://dog.ceo/api/breeds/image/random/' + ITEM_COUNT);
   }, []);
 
   return (
@@ -60,8 +70,8 @@ function App() {
           }}
           animate={{
             opacity: 1,
-            scale: index === position ? 1 : .8,
-            left: `${(index - position) * 60 - 30 }vw`
+            scale: .9,
+            left: `${ getCarouselVirtualIndex(index, position) * ITEM_WIDTH - (ITEM_WIDTH / 2) }vw`
           }}
           transition={{
             type:'spring',
