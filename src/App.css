@@ -2,9 +2,33 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  background: black;
 }
 
 .App {
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  position: relative;
+}
+
+.container {
+  position: absolute;
+  width: 60vw;
+  height: 90vh;
+  top: -45vh;
+  overflow: hidden;
+  background: white;
+  border-radius: 2rem;
+}
+
+.container > img {
+  width: 100%;
+  height: 100%;
 }
