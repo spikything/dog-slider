@@ -1,39 +1,54 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
+import useWindowDimensions from './hooks/useWindowDimensions';
 import './App.css';
+
+const API_ENDPOINT = 'https://dog.ceo/api/breeds/image/random/';
+const ITEM_WIDTH = 60;
+const ITEM_COUNT = 30;
+const CAROUSEL_CENTRE_OFFSET = Math.round(ITEM_COUNT / 2);
 
 function App() {
 
   const [dogs, setDogs] = useState<string[] | null>(null);
-  const [position, setPosition] = useState(2);
-  const ITEM_WIDTH = 60;
-  const ITEM_COUNT = 25;
-  const CAROUSEL_CENTRE_OFFSET = Math.round(ITEM_COUNT / 2);
+  const [position, setPosition] = useState(CAROUSEL_CENTRE_OFFSET);
+  const { height, width } = useWindowDimensions();
 
   const swipeConfig = {
     delta: 10,
-    preventDefaultTouchmoveEvent: false,
-    trackTouch: true,
-    trackMouse: false,
-    rotationAngle: 0
+    preventScrollOnSwipe: true,
+    trackMouse: true
   }
 
   const swipeHandlers = useSwipeable({
     onSwiped: (eventData) => {
+      let isPortrait = width < height;
+      let swipeVector = 0;
+
       switch (eventData.dir) {
 
         case 'Left':
-          setPosition(position + 1);
+          if (!isPortrait) swipeVector = 1;
           break;
 
         case 'Right':
-          setPosition(position - 1);
+          if (!isPortrait) swipeVector = -1;
           break;
-      
+        
+        case 'Down':
+          if (isPortrait) swipeVector = 1;
+          break;
+        
+        case 'Up':
+          if (isPortrait) swipeVector = -1;
+          break;
+
         default:
           break;
       }
+
+      setPosition(position + swipeVector);
     },
     ...swipeConfig,
   });
@@ -42,7 +57,7 @@ function App() {
     let virtualIndex = imageIndex - carouselPosition;
     // while (virtualIndex < 0) virtualIndex += ITEM_COUNT;
     // virtualIndex = virtualIndex % ITEM_COUNT;
-    return virtualIndex - CAROUSEL_CENTRE_OFFSET;
+    return virtualIndex;
   }
 
   useEffect(() => {
@@ -51,7 +66,7 @@ function App() {
       const json = await result.json();
       setDogs(json.message);
     }
-    fetchData('https://dog.ceo/api/breeds/image/random/' + ITEM_COUNT);
+    fetchData(API_ENDPOINT + ITEM_COUNT);
   }, []);
 
   return (
@@ -70,8 +85,8 @@ function App() {
           }}
           animate={{
             opacity: 1,
-            scale: .9,
-            left: `${ getCarouselVirtualIndex(index, position) * ITEM_WIDTH - (ITEM_WIDTH / 2) }vw`
+            scale: position === index ? 1 : 0.85,
+            left: `${ getCarouselVirtualIndex(index, position) * ITEM_WIDTH - (ITEM_WIDTH / 2) }vmax`
           }}
           transition={{
             type:'spring',
@@ -82,11 +97,11 @@ function App() {
 
           <img src={dog} alt='dog' />
 
-          </motion.div>
+        </motion.div>
 
-          ) 
-          : <p>Loading...</p>
-          }
+        ) 
+        : <p>Loading...</p>
+      }
 
       </div>
     </div>
